@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>软考成绩查询刮刮卡刺激版</title>
+    <meta name="description" content="一个有趣的软考成绩查询工具，采用刮刮卡交互方式，让查询成绩的过程更加刺激有趣！">
+    <meta name="keywords" content="软考,成绩查询,刮刮卡,软考成绩">
+    <meta name="author" content="ruankao">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .main-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .left-panel {
+            width: 500px;
+            min-width: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .right-panel {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: none;
+            min-height: 120px;
+            max-height: 200px;
+            font-family: monospace;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .select-group {
+            margin-bottom: 20px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            display: none;
+            flex: 1;
+            overflow: visible;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .result-container.show {
+            display: flex;
+        }
+
+        .basic-info {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .basic-info-title {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .basic-info-item {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 15px;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .basic-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .basic-info-label {
+            color: #666;
+            font-size: 16px;
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        .basic-info-value {
+            color: #333;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .scores-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex: 1;
+            overflow: visible;
+            min-height: 0;
+        }
+
+        .score-row {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .score-label-left {
+            font-size: 24px;
+            color: #f44336;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .score-card {
+            position: relative;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            aspect-ratio: 1;
+            min-height: 200px;
+        }
+
+        .score-card-content {
+            padding: 30px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .score-label {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .score-value {
+            font-size: 200px;
+            font-weight: 700;
+            color: #f44336;
+        }
+
+        .score-value.pass {
+            color: #f44336;
+        }
+
+        .score-value.fail {
+            color: #f44336;
+        }
+
+        .scratch-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .scratch-canvas:active {
+            cursor: grabbing;
+        }
+
+        .hint {
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .reset-btn {
+            background: #f5f5f5;
+            color: #333;
+            margin-top: 15px;
+            flex-shrink: 0;
+        }
+
+        .reset-btn:hover {
+            background: #e0e0e0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-message {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            display: none;
+            flex-shrink: 0;
+        }
+
+        .result-message.show {
+            display: block;
+        }
+
+        .result-message.success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            animation: pulse 1s ease-in-out;
+        }
+
+        .result-message.fail {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        #fireworksCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="fireworksCanvas"></canvas>
+    
+    <div class="main-container">
+        <!-- 左侧查询面板 -->
+        <div class="left-panel">
+            <h1>🎯 软考成绩查询刮刮卡刺激版</h1>
+            
+            <div class="input-group">
+                <label for="cookieInput">Cookie（从浏览器开发者工具复制）</label>
+                <div style="margin-bottom: 8px; font-size: 12px; color: #666;">
+                    <a href="https://bm.ruankao.org.cn/index.php/query/score" target="_blank" style="color: #667eea; text-decoration: none;">
+                        🔗 点击这里登录软考官网
+                    </a>
+                </div>
+                <div style="margin-bottom: 8px; font-size: 12px; color: #666; line-height: 1.6;">
+                    <strong>如何获取Cookie：</strong><br>
+                    1. 打开Chrome浏览器 → 右上角三个点 → 更多工具 → 开发者工具<br>
+                    2. 登录软考官网后，在开发者工具中点击"Network"（网络）标签<br>
+                    3. 访问 <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 3px;">https://bm.ruankao.org.cn/index.php/query/score</code><br>
+                    4. 找到该请求，点击查看详情<br>
+                    5. 在"Request Headers"（请求头）中找到"Cookie"，复制完整内容
+                </div>
+                <textarea id="cookieInput" placeholder="粘贴完整的Cookie字符串，例如：PHPSESSID=xxx; server_id=xxx; UUID=xxx; ..."></textarea>
+            </div>
+
+            <div class="select-group">
+                <label for="stageSelect">考试阶段</label>
+                <select id="stageSelect">
+                    <!-- 动态生成从2009年至今的选项 -->
+                </select>
+            </div>
+
+            <button class="btn" id="queryBtn">查询成绩</button>
+
+            <button class="btn" id="mockQueryBtn" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); margin-top: 10px;">
+                模拟查询（调试用）
+            </button>
+
+            <div class="loading" id="loading">查询中</div>
+
+            <div class="error" id="error"></div>
+        </div>
+
+        <!-- 右侧结果显示面板 -->
+        <div class="right-panel">
+            <div class="result-container" id="resultContainer">
+                <div class="basic-info" id="basicInfo">
+                    <!-- 基础信息将在这里动态生成 -->
+                </div>
+
+                <div class="scores-container" id="scoresContainer">
+                    <!-- 三门成绩的刮刮卡将在这里动态生成 -->
+                </div>
+
+                <div class="result-message" id="resultMessage"></div>
+
+            <button class="btn reset-btn" id="resetBtn">重新查询</button>
+        </div>
+    </div>
+</div>
+
+<!-- 开源信息 -->
+<footer style="position: fixed; bottom: 10px; right: 10px; font-size: 12px; color: rgba(255,255,255,0.7); z-index: 1000;">
+    <a href="https://github.com/your-username/ruankao" target="_blank" style="color: rgba(255,255,255,0.7); text-decoration: none;">
+        ⭐ GitHub
+    </a>
+</footer>
+
+    <script>
+        const cookieInput = document.getElementById('cookieInput');
+        const stageSelect = document.getElementById('stageSelect');
+        const queryBtn = document.getElementById('queryBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const resultContainer = document.getElementById('resultContainer');
+        const basicInfo = document.getElementById('basicInfo');
+        const scoresContainer = document.getElementById('scoresContainer');
+        const resultMessage = document.getElementById('resultMessage');
+        const resetBtn = document.getElementById('resetBtn');
+        const mockQueryBtn = document.getElementById('mockQueryBtn');
+        const fireworksCanvas = document.getElementById('fireworksCanvas');
+
+        let scoreData = null;
+        let passedSubjects = new Set();
+        let allPassed = false;
+        let fireworksInterval = null; // 循环烟花的定时器
+        let scratchedSubjects = new Set(); // 已刮开的科目
+        let failAnimationInterval = null; // 失败动画的定时器
+
+        // 初始化考试阶段选项（从2009年开始）
+        function initStageOptions() {
+            const currentYear = new Date().getFullYear();
+            const options = [];
+            
+            for (let year = currentYear; year >= 2009; year--) {
+                options.push(`${year}年下半年`);
+                options.push(`${year}年上半年`);
+            }
+            
+            stageSelect.innerHTML = options.map(option => 
+                `<option value="${option}">${option}</option>`
+            ).join('');
+        }
+
+        // 全屏烟花效果（从下到上）
+        class Fireworks {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.particles = [];
+                this.rockets = []; // 火箭（从底部发射）
+                this.animationId = null;
+                
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            // 创建从底部发射的火箭
+            createRocket() {
+                const x = Math.random() * this.canvas.width;
+                const targetY = Math.random() * this.canvas.height * 0.6 + this.canvas.height * 0.1;
+                const speed = 3 + Math.random() * 2;
+                
+                this.rockets.push({
+                    x: x,
+                    y: this.canvas.height,
+                    targetY: targetY,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: -speed,
+                    trail: [],
+                    color: `hsl(${Math.random() * 60 + 15}, 100%, 50%)`,
+                    life: 1.0
+                });
+            }
+
+            // 创建爆炸粒子
+            createExplosion(x, y, color) {
+                const particleCount = 150;
+                const colors = [
+                    color,
+                    `hsl(${Math.random() * 60 + 15}, 100%, 60%)`,
+                    `hsl(${Math.random() * 60 + 15}, 100%, 70%)`,
+                    '#ffffff'
+                ];
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.5;
+                    const speed = Math.random() * 8 + 3;
+                    const particleColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    this.particles.push({
+                        x: x,
+                        y: y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        color: particleColor,
+                        life: 1.0,
+                        decay: Math.random() * 0.015 + 0.01,
+                        size: Math.random() * 4 + 2,
+                        gravity: 0.05
+                    });
+                }
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 更新和绘制火箭
+                for (let i = this.rockets.length - 1; i >= 0; i--) {
+                    const rocket = this.rockets[i];
+                    
+                    // 添加尾迹
+                    rocket.trail.push({ x: rocket.x, y: rocket.y, life: 1.0 });
+                    if (rocket.trail.length > 8) {
+                        rocket.trail.shift();
+                    }
+                    
+                    // 更新位置
+                    rocket.x += rocket.vx;
+                    rocket.y += rocket.vy;
+                    
+                    // 绘制尾迹
+                    for (let j = 0; j < rocket.trail.length; j++) {
+                        const point = rocket.trail[j];
+                        point.life -= 0.1;
+                        if (point.life > 0) {
+                            this.ctx.globalAlpha = point.life;
+                            this.ctx.fillStyle = rocket.color;
+                            this.ctx.beginPath();
+                            this.ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+                            this.ctx.fill();
+                        }
+                    }
+                    
+                    // 绘制火箭
+                    this.ctx.globalAlpha = 1;
+                    this.ctx.fillStyle = rocket.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(rocket.x, rocket.y, 3, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    // 检查是否到达目标高度
+                    if (rocket.y <= rocket.targetY) {
+                        // 爆炸
+                        this.createExplosion(rocket.x, rocket.y, rocket.color);
+                        this.rockets.splice(i, 1);
+                    }
+                }
+                
+                // 更新和绘制粒子
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += p.gravity; // 重力
+                    p.vx *= 0.98; // 空气阻力
+                    p.vy *= 0.98;
+                    p.life -= p.decay;
+                    
+                    if (p.life > 0 && p.y < this.canvas.height + 50) {
+                        this.ctx.globalAlpha = p.life;
+                        this.ctx.fillStyle = p.color;
+                        this.ctx.beginPath();
+                        this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    } else {
+                        this.particles.splice(i, 1);
+                    }
+                }
+                
+                if (this.particles.length > 0 || this.rockets.length > 0) {
+                    this.animationId = requestAnimationFrame(() => this.animate());
+                } else {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.animationId = null;
+                }
+            }
+
+            launch(x, y, isBig = false) {
+                // 单科通过时，从底部发射一个火箭到指定位置
+                this.rockets.push({
+                    x: x,
+                    y: this.canvas.height,
+                    targetY: y,
+                    vx: 0,
+                    vy: -5,
+                    trail: [],
+                    color: `hsl(${Math.random() * 60 + 15}, 100%, 50%)`,
+                    life: 1.0
+                });
+                if (!this.animationId) {
+                    this.animate();
+                }
+            }
+
+            launchBig() {
+                // 全部通过时，持续从底部发射多个火箭
+                const launchCount = 20;
+                for (let i = 0; i < launchCount; i++) {
+                    setTimeout(() => {
+                        this.createRocket();
+                        if (!this.animationId) {
+                            this.animate();
+                        }
+                    }, i * 150);
+                }
+            }
+        }
+
+        const fireworks = new Fireworks(fireworksCanvas);
+
+        // 初始化Canvas刮刮卡
+        function initScratchCard(canvas, content, score, subjectName, skipDraw = false) {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            
+            // 如果skipDraw为true，说明已经绘制过临时涂层，只需要确保尺寸正确，不重新设置尺寸
+            if (skipDraw) {
+                // 不重新设置尺寸，避免清除已绘制的涂层
+                // 只确保尺寸正确（如果尺寸不对，才重新设置并绘制）
+                if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                    // 尺寸不匹配，需要重新绘制
+                    canvas.width = rect.width;
+                    canvas.height = rect.height;
+                    const ctx = canvas.getContext('2d');
+                    const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
+                    gradient.addColorStop(0, '#c0c0c0');
+                    gradient.addColorStop(1, '#808080');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, rect.width, rect.height);
+                    ctx.fillStyle = '#666';
+                    ctx.font = 'bold 20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('刮开查看', rect.width / 2, rect.height / 2);
+                }
+                // 如果尺寸正确，直接使用已有的涂层，不需要重新绘制
+            } else {
+                // 正常初始化，设置尺寸并绘制涂层
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                const ctx = canvas.getContext('2d');
+                // 绘制银色涂层
+                const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
+                gradient.addColorStop(0, '#c0c0c0');
+                gradient.addColorStop(1, '#808080');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, rect.width, rect.height);
+                
+                // 添加文字提示
+                ctx.fillStyle = '#666';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('刮开查看', rect.width / 2, rect.height / 2);
+            }
+            
+            // 获取context（无论是否skipDraw都需要绑定事件）
+            const ctx = canvas.getContext('2d');
+            
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            let hasTriggeredEffect = false; // 标记是否已触发效果
+            let lastScratchTime = 0; // 最后刮开操作的时间
+            let timeoutCheck = null; // 超时检测定时器
+
+            function getEventPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                if (e.touches) {
+                    return {
+                        x: e.touches[0].clientX - rect.left,
+                        y: e.touches[0].clientY - rect.top
+                    };
+                }
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+            }
+
+            function scratch(x, y) {
+                ctx.globalCompositeOperation = 'destination-out';
+                // 使用更小的不规则形状，更真实的刮开效果（缩小刮开区域，更刺激）
+                const baseRadius = 8;
+                const variation = 2; // 随机变化范围
+                
+                // 如果是移动状态，在两点之间画线，让刮开更流畅
+                if (isDrawing && lastX !== 0 && lastY !== 0) {
+                    const dx = x - lastX;
+                    const dy = y - lastY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const steps = Math.max(1, Math.floor(distance / 5)); // 每5像素一个点
+                    
+                    for (let i = 0; i <= steps; i++) {
+                        const t = i / steps;
+                        const cx = lastX + dx * t;
+                        const cy = lastY + dy * t;
+                        
+                        // 创建不规则形状
+                        ctx.beginPath();
+                        const points = 8;
+                        for (let j = 0; j < points; j++) {
+                            const angle = (Math.PI * 2 * j) / points;
+                            const radius = baseRadius + Math.random() * variation;
+                            const px = cx + Math.cos(angle) * radius;
+                            const py = cy + Math.sin(angle) * radius;
+                            if (j === 0) {
+                                ctx.moveTo(px, py);
+                            } else {
+                                ctx.lineTo(px, py);
+                            }
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                } else {
+                    // 单点刮开
+                    ctx.beginPath();
+                    const points = 8;
+                    for (let i = 0; i < points; i++) {
+                        const angle = (Math.PI * 2 * i) / points;
+                        const radius = baseRadius + Math.random() * variation;
+                        const px = x + Math.cos(angle) * radius;
+                        const py = y + Math.sin(angle) * radius;
+                        if (i === 0) {
+                            ctx.moveTo(px, py);
+                        } else {
+                            ctx.lineTo(px, py);
+                        }
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                
+                lastX = x;
+                lastY = y;
+                lastScratchTime = Date.now(); // 更新最后操作时间
+                
+                // 清除之前的超时检测
+                if (timeoutCheck) {
+                    clearTimeout(timeoutCheck);
+                    timeoutCheck = null;
+                }
+                
+                // 检测数字是否可见（添加防抖，避免频繁检测）
+                if (!hasTriggeredEffect) {
+                    // 使用防抖，每200ms检测一次
+                    clearTimeout(checkNumberVisible.timeout);
+                    checkNumberVisible.timeout = setTimeout(() => {
+                        checkNumberVisible(false);
+                    }, 200);
+                    
+                    // 设置超时检测：如果2秒内没有操作，自动判断为刮完
+                    timeoutCheck = setTimeout(() => {
+                        if (!hasTriggeredEffect) {
+                            // 用户停止操作2秒，强制检测一次（使用更低的阈值）
+                            checkNumberVisible(true); // 传入true表示超时检测，降低阈值
+                        }
+                    }, 2000);
+                }
+            }
+            
+            // 检测数字是否可见（基于字体位置的刮开比例）
+            function checkNumberVisible(isTimeoutCheck = false) {
+                // 获取数字元素的位置
+                const scoreElement = document.getElementById(content);
+                if (!scoreElement) return;
+                
+                const cardRect = canvas.parentElement.getBoundingClientRect();
+                const scoreRect = scoreElement.getBoundingClientRect();
+                
+                // 计算数字在Canvas中的相对位置
+                const scoreLeft = scoreRect.left - cardRect.left;
+                const scoreTop = scoreRect.top - cardRect.top;
+                const scoreWidth = scoreRect.width;
+                const scoreHeight = scoreRect.height;
+                
+                // 使用更密集的网格采样，确保覆盖整个字体区域
+                const gridSize = 10; // 10x10网格，共100个采样点
+                const stepX = scoreWidth / gridSize;
+                const stepY = scoreHeight / gridSize;
+                let visiblePoints = 0;
+                let totalPoints = 0;
+                
+                // 在数字区域进行网格采样
+                for (let i = 0; i < gridSize; i++) {
+                    for (let j = 0; j < gridSize; j++) {
+                        const x = scoreLeft + (i + 0.5) * stepX;
+                        const y = scoreTop + (j + 0.5) * stepY;
+                        
+                        // 确保点在Canvas范围内
+                        if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
+                            totalPoints++;
+                            const imageData = ctx.getImageData(Math.floor(x), Math.floor(y), 1, 1);
+                            const alpha = imageData.data[3];
+                            
+                            // 如果alpha值小于120，说明该点被刮开了
+                            if (alpha < 120) {
+                                visiblePoints++;
+                            }
+                        }
+                    }
+                }
+                
+                // 根据是否超时检测，使用不同的阈值
+                // 正常检测：需要70%可见（避免过早触发）
+                // 超时检测：只需要50%可见（用户可能已经知道分数了）
+                const threshold = isTimeoutCheck ? 0.5 : 0.7;
+                const visibilityRatio = totalPoints > 0 ? visiblePoints / totalPoints : 0;
+                
+                if (visibilityRatio > threshold) {
+                    hasTriggeredEffect = true;
+                    
+                    // 标记该科目已刮开
+                    if (!scratchedSubjects.has(subjectName)) {
+                        scratchedSubjects.add(subjectName);
+                        
+                        // 根据分数判断是否通过
+                        if (score >= 45) {
+                            // 通过，放烟花
+                            if (!passedSubjects.has(subjectName)) {
+                                passedSubjects.add(subjectName);
+                                const rect = canvas.getBoundingClientRect();
+                                const centerX = rect.left + rect.width / 2;
+                                const centerY = rect.top + rect.height / 2;
+                                fireworks.launch(centerX, centerY, false);
+                            }
+                        }
+                        
+                        // 检查是否全部刮完，然后根据总成绩决定最终效果
+                        checkAllScratchedAndShowResult();
+                    }
+                }
+            }
+
+            canvas.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                const pos = getEventPos(e);
+                lastX = pos.x;
+                lastY = pos.y;
+                scratch(pos.x, pos.y);
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (isDrawing) {
+                    const pos = getEventPos(e);
+                    scratch(pos.x, pos.y);
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                isDrawing = false;
+                lastX = 0;
+                lastY = 0;
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                isDrawing = false;
+                lastX = 0;
+                lastY = 0;
+            });
+
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isDrawing = true;
+                const pos = getEventPos(e);
+                lastX = pos.x;
+                lastY = pos.y;
+                scratch(pos.x, pos.y);
+            });
+
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (isDrawing) {
+                    const pos = getEventPos(e);
+                    scratch(pos.x, pos.y);
+                }
+            });
+
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                isDrawing = false;
+                lastX = 0;
+                lastY = 0;
+            });
+        }
+
+        // 检查是否全部通过
+        function checkAllPassed() {
+            if (scoreData && passedSubjects.size === 3) {
+                const swcj = parseFloat(scoreData.SWCJ || 0);
+                const xwcj = parseFloat(scoreData.XWCJ || 0);
+                const lwcj = parseFloat(scoreData.LWCJ || 0);
+                
+                if (swcj >= 45 && xwcj >= 45 && lwcj >= 45 && !allPassed) {
+                    allPassed = true;
+                    setTimeout(() => {
+                        fireworks.launchBig();
+                        resultMessage.textContent = '🎉 恭喜！全部通过！🎉';
+                        resultMessage.className = 'result-message success show';
+                        
+                        // 开始循环播放烟花
+                        startContinuousFireworks();
+                    }, 500);
+                }
+            }
+        }
+
+        // 开始循环播放烟花
+        function startContinuousFireworks() {
+            // 清除之前的定时器（如果存在）
+            if (fireworksInterval) {
+                clearInterval(fireworksInterval);
+            }
+            
+            // 立即开始发射
+            fireworks.launchBig();
+            
+            // 每隔1.5秒持续发射烟花
+            fireworksInterval = setInterval(() => {
+                fireworks.launchBig();
+            }, 1500);
+        }
+
+        // 停止循环烟花
+        function stopContinuousFireworks() {
+            if (fireworksInterval) {
+                clearInterval(fireworksInterval);
+                fireworksInterval = null;
+            }
+        }
+
+        // 检查是否全部刮完，并根据总成绩显示最终效果
+        function checkAllScratchedAndShowResult() {
+            if (scoreData && scratchedSubjects.size === 3) {
+                const swcj = parseFloat(scoreData.SWCJ || 0);
+                const xwcj = parseFloat(scoreData.XWCJ || 0);
+                const lwcj = parseFloat(scoreData.LWCJ || 0);
+                
+                // 检查是否全部通过
+                const allPassedNow = swcj >= 45 && xwcj >= 45 && lwcj >= 45;
+                
+                if (allPassedNow && !allPassed) {
+                    // 全部通过，显示庆祝烟花
+                    allPassed = true;
+                    setTimeout(() => {
+                        fireworks.launchBig();
+                        resultMessage.textContent = '🎉 恭喜！全部通过！🎉';
+                        resultMessage.className = 'result-message success show';
+                        
+                        // 开始循环播放烟花
+                        startContinuousFireworks();
+                    }, 500);
+                } else if (!allPassedNow && !allPassed) {
+                    // 未全部通过，显示再接再厉动画
+                    if (!resultMessage.classList.contains('show')) {
+                        resultMessage.textContent = '💪 再接再厉，下次一定通过！';
+                        resultMessage.className = 'result-message fail show';
+                    }
+                    // 启动循环动画（如果还没启动）
+                    if (!failAnimationInterval) {
+                        startFailAnimation();
+                    }
+                }
+            }
+        }
+
+        // 启动失败动画
+        function startFailAnimation() {
+            // 动画已经在CSS中定义，这里只需要确保消息显示
+            // 可以添加一些额外的视觉效果
+            failAnimationInterval = setInterval(() => {
+                // 可以在这里添加额外的动画效果，比如改变颜色等
+                const message = document.getElementById('resultMessage');
+                if (message && message.classList.contains('show')) {
+                    // 动画已经在CSS中，这里可以添加其他效果
+                }
+            }, 100);
+        }
+
+        // 停止失败动画
+        function stopFailAnimation() {
+            if (failAnimationInterval) {
+                clearInterval(failAnimationInterval);
+                failAnimationInterval = null;
+            }
+        }
+
+        // 查询成绩
+        async function queryScore() {
+            const cookie = cookieInput.value.trim();
+            const stage = stageSelect.value;
+
+            if (!cookie) {
+                showError('请输入Cookie');
+                return;
+            }
+
+            // 重置状态
+            passedSubjects.clear();
+            scratchedSubjects.clear();
+            allPassed = false;
+            resultMessage.classList.remove('show');
+            stopContinuousFireworks(); // 停止循环烟花
+            stopFailAnimation(); // 停止失败动画
+
+            // 显示加载状态
+            queryBtn.disabled = true;
+            loading.classList.add('show');
+            error.classList.remove('show');
+            resultContainer.classList.remove('show');
+
+            try {
+                const response = await fetch('/proxy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cookie: cookie,
+                        stage: stage
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.flag === 1 && data.status === 200) {
+                    scoreData = data.data;
+                    displayResult(data.data);
+                } else {
+                    showError(data.msg || '查询失败，请检查Cookie是否正确');
+                }
+            } catch (err) {
+                console.error('查询错误:', err);
+                showError('查询失败：' + err.message + '。请确保已启动本地代理服务器（运行 node server.js）');
+            } finally {
+                queryBtn.disabled = false;
+                loading.classList.remove('show');
+            }
+        }
+
+        // 显示成绩
+        function displayResult(data) {
+            const swcj = parseFloat(data.SWCJ || 0);
+            const xwcj = parseFloat(data.XWCJ || 0);
+            const lwcj = parseFloat(data.LWCJ || 0);
+
+            // 证件号脱敏处理：保留前6位和后4位，中间使用*号遮挡
+            let maskedId = '-';
+            const idNumber = data.ZJH || '';
+            if (idNumber && typeof idNumber === 'string' && idNumber.length >= 8) {
+                const visibleStart = idNumber.slice(0, 6);
+                const visibleEnd = idNumber.slice(-4);
+                const maskLength = Math.max(idNumber.length - visibleStart.length - visibleEnd.length, 4);
+                maskedId = `${visibleStart}${'*'.repeat(maskLength)}${visibleEnd}`;
+            }
+
+            // 显示基础信息（注意隐私保护，证件号只部分展示）
+            basicInfo.innerHTML = `
+                <div class="basic-info-title">${data.ZGMC || '软考成绩'}</div>
+                <div class="basic-info-item">
+                    <span class="basic-info-label">姓名</span>
+                    <span class="basic-info-value">${data.XM || '-'}</span>
+                </div>
+                <div class="basic-info-item">
+                    <span class="basic-info-label">证件号</span>
+                    <span class="basic-info-value">${maskedId}</span>
+                </div>
+                <div class="basic-info-item">
+                    <span class="basic-info-label">准考证号</span>
+                    <span class="basic-info-value">${data.ZKZH || '-'}</span>
+                </div>
+                <div class="basic-info-item">
+                    <span class="basic-info-label">考试时间</span>
+                    <span class="basic-info-value">${data.KSSJ || '-'}</span>
+                </div>
+            `;
+
+            // 显示三门成绩的刮刮卡（横向排列）
+            scoresContainer.innerHTML = `
+                <div class="score-row">
+                    <div class="score-label-left">选择题</div>
+                    <div class="score-card" id="scoreCard1">
+                        <div class="score-card-content">
+                            <div class="score-value ${swcj >= 45 ? 'pass' : 'fail'}" id="scoreValue1">${Math.round(swcj)}</div>
+                        </div>
+                        <canvas class="scratch-canvas" id="scratchCanvas1"></canvas>
+                    </div>
+                </div>
+                <div class="score-row">
+                    <div class="score-label-left">案例分析</div>
+                    <div class="score-card" id="scoreCard2">
+                        <div class="score-card-content">
+                            <div class="score-value ${xwcj >= 45 ? 'pass' : 'fail'}" id="scoreValue2">${Math.round(xwcj)}</div>
+                        </div>
+                        <canvas class="scratch-canvas" id="scratchCanvas2"></canvas>
+                    </div>
+                </div>
+                <div class="score-row">
+                    <div class="score-label-left">论文</div>
+                    <div class="score-card" id="scoreCard3">
+                        <div class="score-card-content">
+                            <div class="score-value ${lwcj >= 45 ? 'pass' : 'fail'}" id="scoreValue3">${Math.round(lwcj)}</div>
+                        </div>
+                        <canvas class="scratch-canvas" id="scratchCanvas3"></canvas>
+                    </div>
+                </div>
+            `;
+
+            // 先不显示结果容器，等Canvas初始化完成后再显示，避免闪烁
+            // resultContainer.classList.add('show');
+
+            // 检查是否有未通过的科目
+            if (swcj < 45 || xwcj < 45 || lwcj < 45) {
+                resultMessage.textContent = '💪 再接再厉，下次一定通过！';
+                resultMessage.className = 'result-message fail';
+            }
+
+            // 延迟初始化Canvas，确保DOM已渲染，初始化完成后再显示结果容器
+            setTimeout(() => {
+                const canvas1 = document.getElementById('scratchCanvas1');
+                const canvas2 = document.getElementById('scratchCanvas2');
+                const canvas3 = document.getElementById('scratchCanvas3');
+                
+                // 先快速绘制临时涂层，防止内容闪现
+                [canvas1, canvas2, canvas3].forEach(canvas => {
+                    if (canvas) {
+                        const rect = canvas.parentElement.getBoundingClientRect();
+                        canvas.width = rect.width;
+                        canvas.height = rect.height;
+                        const ctx = canvas.getContext('2d');
+                        const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
+                        gradient.addColorStop(0, '#c0c0c0');
+                        gradient.addColorStop(1, '#808080');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, rect.width, rect.height);
+                        ctx.fillStyle = '#666';
+                        ctx.font = 'bold 20px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('刮开查看', rect.width / 2, rect.height / 2);
+                    }
+                });
+                
+                // 现在显示结果容器（此时Canvas已经有涂层了，不会闪现）
+                resultContainer.classList.add('show');
+                
+                // 然后初始化完整的刮刮卡功能（skipDraw=true表示跳过重复绘制）
+                requestAnimationFrame(() => {
+                    initScratchCard(canvas1, 'scoreValue1', swcj, '选择题', true);
+                    initScratchCard(canvas2, 'scoreValue2', xwcj, '案例分析', true);
+                    initScratchCard(canvas3, 'scoreValue3', lwcj, '论文', true);
+                });
+            }, 50);
+        }
+
+        // 显示错误
+        function showError(message) {
+            error.textContent = message;
+            error.classList.add('show');
+        }
+
+        // 初始化
+        initStageOptions();
+
+        // 模拟查询（用于调试）
+        function mockQuery() {
+            // 模拟不同的成绩情况
+            const mockData = {
+                flag: 1,
+                status: 200,
+                msg: 'ok',
+                data: {
+                    ZJH: "342425198808227917",
+                    ZKZH: "20251033106020893",
+                    XM: "测试用户",
+                    KSSJ: "2025年上半年",
+                    SWCJ: "45.00",  // 可以通过，也可以改为小于45测试未通过
+                    XWCJ: "45.00",  // 可以通过，也可以改为小于45测试未通过
+                    LWCJ: "45.00",  // 可以通过，也可以改为小于45测试未通过
+                    ZGMC: "系统架构设计师",
+                    SSBH: "31",
+                    JK: "0",
+                    notice_text: ""
+                }
+            };
+            
+            // 重置状态
+            passedSubjects.clear();
+            scratchedSubjects.clear();
+            allPassed = false;
+            resultMessage.classList.remove('show');
+            stopContinuousFireworks();
+            stopFailAnimation();
+            
+            // 显示加载状态
+            queryBtn.disabled = true;
+            mockQueryBtn.disabled = true;
+            loading.classList.add('show');
+            error.classList.remove('show');
+            resultContainer.classList.remove('show');
+            
+            // 模拟网络延迟
+            setTimeout(() => {
+                scoreData = mockData.data;
+                displayResult(mockData.data);
+                queryBtn.disabled = false;
+                mockQueryBtn.disabled = false;
+                loading.classList.remove('show');
+            }, 500);
+        }
+
+        // 事件监听
+        queryBtn.addEventListener('click', queryScore);
+        mockQueryBtn.addEventListener('click', mockQuery);
+        
+        resetBtn.addEventListener('click', () => {
+            resultContainer.classList.remove('show');
+            cookieInput.value = '';
+            error.classList.remove('show');
+            resultMessage.classList.remove('show');
+            passedSubjects.clear();
+            scratchedSubjects.clear();
+            allPassed = false;
+            stopContinuousFireworks(); // 停止循环烟花
+            stopFailAnimation(); // 停止失败动画
+        });
+
+        // 回车键查询
+        cookieInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                queryScore();
+            }
+        });
+    </script>
+
+    <!-- 开源信息 -->
+    <footer style="position: fixed; bottom: 10px; right: 10px; font-size: 12px; color: rgba(255,255,255,0.7); z-index: 1000;">
+        <a href="https://github.com/your-username/ruankao" target="_blank" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">
+            ⭐ GitHub
+        </a>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "ruankao-score-query",
+  "version": "1.0.0",
+  "description": "软考成绩查询刮刮卡刺激版",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "ruankao",
+    "score",
+    "query"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
+
