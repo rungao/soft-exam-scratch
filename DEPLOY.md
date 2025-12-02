@@ -27,7 +27,7 @@ git add .
 git commit -m "Initial commit"
 
 # 在GitHub上创建新仓库，然后添加远程仓库
-git remote add origin https://github.com/你的用户名/ruankao.git
+git remote add origin https://github.com/rungao/soft-exam-scratch.git
 
 # 推送到GitHub
 git push -u origin main

@@ -20,8 +20,8 @@
 
 1. **克隆仓库**
    ```bash
-   git clone https://github.com/your-username/ruankao.git
-   cd ruankao
+   git clone https://github.com/rungao/soft-exam-scratch.git
+   cd soft-exam-scratch
    ```
 
 2. **确保已安装 Node.js**
@@ -64,7 +64,7 @@
 ## 📁 项目结构
 
 ```
-ruankao/
+soft-exam-scratch/
 ├── index.html          # 主页面（包含查询界面和刮刮卡效果）
 ├── server.js           # 本地代理服务器（解决CORS问题）
 ├── README.md           # 项目说明文档
