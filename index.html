@@ -7,6 +7,8 @@
     <meta name="description" content="一个有趣的软考成绩查询工具，采用刮刮卡交互方式，让查询成绩的过程更加刺激有趣！">
     <meta name="keywords" content="软考,成绩查询,刮刮卡,软考成绩">
     <meta name="author" content="rungao">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico">
     <style>
         * {
             margin: 0;
@@ -35,7 +37,8 @@
 
         .left-panel {
             width: 500px;
-            min-width: 500px;
+            min-width: 400px;
+            max-width: 600px;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -59,9 +62,104 @@
 
         h1 {
             text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 24px;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+            position: relative;
+            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        h1 .logo-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+            vertical-align: middle;
+        }
+
+        h1 a {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h1 a:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h1 a:hover .logo-img {
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        /* GitHub Ribbon - 固定在右侧 */
+        .github-ribbon {
+            position: fixed;
+            top: 22px;
+            right: 6px;
+            width: 60px;
+            height: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: rotate(45deg);
+            z-index: 1000;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .github-ribbon:hover {
+            transform: rotate(45deg) scale(1.05);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+        }
+
+        .github-ribbon a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            color: white;
+            text-decoration: none;
+        }
+
+        .github-ribbon .github-icon {
+            width: 18px;
+            height: 18px;
+            fill: white;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
         }
 
         .input-group {
@@ -173,7 +271,7 @@
 
         .basic-info-item {
             display: grid;
-            grid-template-columns: 150px 1fr;
+            grid-template-columns: minmax(120px, 150px) 1fr;
             gap: 15px;
             align-items: center;
             padding: 10px 0;
@@ -199,8 +297,8 @@
 
         .scores-container {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(10px, 2vw, 20px);
             margin-bottom: 20px;
             flex: 1;
             overflow: visible;
@@ -249,9 +347,10 @@
         }
 
         .score-value {
-            font-size: 200px;
+            font-size: clamp(80px, 15vw, 200px);
             font-weight: 700;
             color: #f44336;
+            line-height: 1;
         }
 
         .score-value.pass {
@@ -355,9 +454,68 @@
             color: white;
         }
 
+        /* 成功消息弹窗样式 */
+        .result-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            z-index: 10000;
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 40px 60px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            display: none;
+            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            min-width: 300px;
+            max-width: 90%;
+        }
+
+        .result-popup.show {
+            display: block;
+        }
+
+        .result-popup.fail {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .result-popup-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .result-popup-backdrop.show {
+            display: block;
+        }
+
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
         }
 
         #fireworksCanvas {
@@ -369,28 +527,235 @@
             pointer-events: none;
             z-index: 9999;
         }
+
+
+        /* 响应式设计 - 大屏幕优化 */
+        @media (min-width: 1920px) {
+            .main-container {
+                max-width: 1800px;
+                margin: 0 auto;
+                padding: 30px;
+            }
+
+            .left-panel {
+                width: 550px;
+                padding: 40px;
+            }
+
+            .right-panel {
+                padding: 40px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            h1 .logo-img {
+                width: 42px;
+                height: 42px;
+            }
+
+            .basic-info-title {
+                font-size: 26px;
+            }
+
+            .basic-info-value {
+                font-size: 20px;
+            }
+
+            .score-label-left {
+                font-size: 28px;
+            }
+        }
+
+        /* 中等屏幕（笔记本电脑） */
+        @media (max-width: 1440px) and (min-width: 1024px) {
+            .main-container {
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .left-panel {
+                width: 450px;
+                min-width: 400px;
+                padding: 25px;
+            }
+
+            .right-panel {
+                padding: 25px;
+            }
+
+            .score-value {
+                font-size: clamp(100px, 12vw, 180px);
+            }
+        }
+
+        /* 小屏幕（平板和小笔记本） */
+        @media (max-width: 1023px) {
+            body {
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            .main-container {
+                flex-direction: column;
+                padding: 15px;
+                gap: 15px;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .left-panel {
+                width: 100%;
+                min-width: unset;
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            .right-panel {
+                width: 100%;
+                padding: 20px;
+                min-height: 600px;
+            }
+
+            .scores-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .score-card {
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            .score-value {
+                font-size: clamp(120px, 25vw, 180px);
+            }
+
+            .basic-info-item {
+                grid-template-columns: 100px 1fr;
+                gap: 10px;
+            }
+
+            .basic-info-label {
+                font-size: 14px;
+            }
+
+            .basic-info-value {
+                font-size: 16px;
+            }
+        }
+
+        /* 超小屏幕（手机） */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .left-panel,
+            .right-panel {
+                padding: 15px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+            }
+
+            h1 .logo-img {
+                width: 32px;
+                height: 32px;
+            }
+
+
+            .basic-info {
+                padding: 15px;
+            }
+
+            .basic-info-title {
+                font-size: 18px;
+            }
+
+            .basic-info-item {
+                grid-template-columns: 80px 1fr;
+                gap: 8px;
+                padding: 8px 0;
+            }
+
+            .basic-info-label {
+                font-size: 13px;
+            }
+
+            .basic-info-value {
+                font-size: 14px;
+            }
+
+            .score-label-left {
+                font-size: 18px;
+            }
+
+            .score-value {
+                font-size: clamp(100px, 30vw, 150px);
+            }
+
+            .score-card {
+                min-height: 180px;
+            }
+
+            .score-card-content {
+                padding: 20px;
+            }
+        }
+
+        /* 超宽屏优化 */
+        @media (min-width: 2560px) {
+            .main-container {
+                max-width: 2400px;
+            }
+
+            .score-value {
+                font-size: 220px;
+            }
+        }
     </style>
 </head>
 <body>
     <canvas id="fireworksCanvas"></canvas>
     
+    <!-- GitHub Ribbon - 固定在右上角 -->
+    <div class="github-ribbon">
+        <a href="https://github.com/rungao/soft-exam-scratch" target="_blank" rel="noopener noreferrer" title="GitHub 开源项目">
+            <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+        </a>
+    </div>
+    
     <div class="main-container">
         <!-- 左侧查询面板 -->
         <div class="left-panel">
-            <h1>🎯 软考成绩查询刮刮卡刺激版</h1>
+            <h1>
+                <a href="https://github.com/rungao/soft-exam-scratch" target="_blank" rel="noopener noreferrer" title="GitHub 开源项目">
+                    <img src="images/logo.png" alt="软考Logo" class="logo-img">
+                    软考成绩查询刮刮卡刺激版
+                </a>
+            </h1>
             
             <div class="input-group">
-                <label for="cookieInput">Cookie（从浏览器开发者工具复制）</label>
+                <label for="cookieInput">如何获取登录Cookie：</label>
                 <div style="margin-bottom: 8px; font-size: 12px; color: #666;">
                     <a href="https://bm.ruankao.org.cn/index.php/query/score" target="_blank" style="color: #667eea; text-decoration: none;">
                         🔗 点击这里登录软考官网
                     </a>
                 </div>
                 <div style="margin-bottom: 8px; font-size: 12px; color: #666; line-height: 1.6;">
-                    <strong>如何获取Cookie：</strong><br>
+                    <strong>操作步骤：</strong><br>
                     1. 打开Chrome浏览器 → 右上角三个点 → 更多工具 → 开发者工具<br>
                     2. 登录软考官网后，在开发者工具中点击"Network"（网络）标签<br>
-                    3. 访问 <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 3px;">https://bm.ruankao.org.cn/index.php/query/score</code><br>
+                    3. 刷新网页，查找 <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 3px;">https://bm.ruankao.org.cn/index.php/query/score</code><br>
                     4. 找到该请求，点击查看详情<br>
                     5. 在"Request Headers"（请求头）中找到"Cookie"，复制完整内容
                 </div>
@@ -433,12 +798,13 @@
     </div>
 </div>
 
-<!-- 开源信息 -->
-<footer style="position: fixed; bottom: 10px; right: 10px; font-size: 12px; color: rgba(255,255,255,0.7); z-index: 1000;">
-    <a href="https://github.com/rungao/soft-exam-scratch" target="_blank" style="color: rgba(255,255,255,0.7); text-decoration: none;">
-        ⭐ GitHub
-    </a>
-</footer>
+<!-- 成功消息弹窗 -->
+<div class="result-popup-backdrop" id="popupBackdrop"></div>
+<div class="result-popup" id="resultPopup"></div>
+        </div>
+    </div>
+</div>
+
 
     <script>
         const cookieInput = document.getElementById('cookieInput');
@@ -450,6 +816,8 @@
         const basicInfo = document.getElementById('basicInfo');
         const scoresContainer = document.getElementById('scoresContainer');
         const resultMessage = document.getElementById('resultMessage');
+        const resultPopup = document.getElementById('resultPopup');
+        const popupBackdrop = document.getElementById('popupBackdrop');
         const resetBtn = document.getElementById('resetBtn');
         const mockQueryBtn = document.getElementById('mockQueryBtn');
         const fireworksCanvas = document.getElementById('fireworksCanvas');
@@ -936,8 +1304,7 @@
                     allPassed = true;
                     setTimeout(() => {
                         fireworks.launchBig();
-                        resultMessage.textContent = '🎉 恭喜！全部通过！🎉';
-                        resultMessage.className = 'result-message success show';
+                        showSuccessPopup('🎉 恭喜上岸！🎉');
                         
                         // 开始循环播放烟花
                         startContinuousFireworks();
@@ -970,6 +1337,28 @@
             }
         }
 
+        // 显示成功弹窗
+        function showSuccessPopup(message) {
+            resultPopup.textContent = message;
+            resultPopup.classList.remove('fail');
+            resultPopup.classList.add('show');
+            popupBackdrop.classList.add('show');
+            
+            // 3秒后自动关闭
+            setTimeout(() => {
+                closePopup();
+            }, 3000);
+        }
+
+        // 关闭弹窗
+        function closePopup() {
+            resultPopup.classList.remove('show');
+            popupBackdrop.classList.remove('show');
+        }
+
+        // 点击背景关闭弹窗
+        popupBackdrop.addEventListener('click', closePopup);
+
         // 检查是否全部刮完，并根据总成绩显示最终效果
         function checkAllScratchedAndShowResult() {
             if (scoreData && scratchedSubjects.size === 3) {
@@ -985,8 +1374,7 @@
                     allPassed = true;
                     setTimeout(() => {
                         fireworks.launchBig();
-                        resultMessage.textContent = '🎉 恭喜！全部通过！🎉';
-                        resultMessage.className = 'result-message success show';
+                        showSuccessPopup('🎉 恭喜上岸！🎉');
                         
                         // 开始循环播放烟花
                         startContinuousFireworks();
@@ -1041,6 +1429,7 @@
             scratchedSubjects.clear();
             allPassed = false;
             resultMessage.classList.remove('show');
+            closePopup(); // 关闭弹窗
             stopContinuousFireworks(); // 停止循环烟花
             stopFailAnimation(); // 停止失败动画
 
@@ -1262,6 +1651,7 @@
             passedSubjects.clear();
             scratchedSubjects.clear();
             allPassed = false;
+            closePopup(); // 关闭弹窗
             stopContinuousFireworks(); // 停止循环烟花
             stopFailAnimation(); // 停止失败动画
         });
@@ -1274,11 +1664,5 @@
         });
     </script>
 
-    <!-- 开源信息 -->
-    <footer style="position: fixed; bottom: 10px; right: 10px; font-size: 12px; color: rgba(255,255,255,0.7); z-index: 1000;">
-        <a href="https://github.com/your-username/ruankao" target="_blank" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">
-            ⭐ GitHub
-        </a>
-    </footer>
 </body>
 </html>

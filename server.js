@@ -76,6 +76,56 @@ function handleProxy(req, res) {
     });
 }
 
+// 获取文件MIME类型
+function getMimeType(filePath) {
+    const ext = path.extname(filePath).toLowerCase();
+    const mimeTypes = {
+        '.html': 'text/html',
+        '.js': 'text/javascript',
+        '.css': 'text/css',
+        '.json': 'application/json',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.svg': 'image/svg+xml',
+        '.ico': 'image/x-icon',
+        '.woff': 'font/woff',
+        '.woff2': 'font/woff2',
+        '.ttf': 'font/ttf',
+        '.eot': 'application/vnd.ms-fontobject'
+    };
+    return mimeTypes[ext] || 'application/octet-stream';
+}
+
+// 处理静态文件
+function handleStaticFile(req, res) {
+    const parsedUrl = url.parse(req.url);
+    let filePath = path.join(__dirname, parsedUrl.pathname);
+    
+    // 安全检查：确保文件在项目目录内
+    const projectRoot = path.resolve(__dirname);
+    if (!filePath.startsWith(projectRoot)) {
+        res.writeHead(403);
+        res.end('Forbidden');
+        return;
+    }
+    
+    fs.readFile(filePath, (err, data) => {
+        if (err) {
+            res.writeHead(404);
+            res.end('File not found');
+        } else {
+            const mimeType = getMimeType(filePath);
+            res.writeHead(200, { 
+                'Content-Type': mimeType,
+                'Cache-Control': 'public, max-age=3600'
+            });
+            res.end(data);
+        }
+    });
+}
+
 // 创建服务器
 const server = http.createServer((req, res) => {
     // 处理CORS预检请求
@@ -93,7 +143,10 @@ const server = http.createServer((req, res) => {
     // 处理 /proxy 路径的请求
     if (req.url === '/proxy' && req.method === 'POST') {
         handleProxy(req, res);
-    } else {
+    } else if (req.url.startsWith('/images/') || req.url.startsWith('/api/')) {
+        // 处理静态资源文件（images目录）和API路由
+        handleStaticFile(req, res);
+    } else if (req.url === '/' || req.url === '/index.html') {
         // 返回HTML页面
         const filePath = path.join(__dirname, 'index.html');
         
@@ -106,6 +159,9 @@ const server = http.createServer((req, res) => {
                 res.end(data);
             }
         });
+    } else {
+        // 其他路径也尝试作为静态文件处理
+        handleStaticFile(req, res);
     }
 });
 
