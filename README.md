@@ -2,16 +2,6 @@
 
 > 一个有趣的软考成绩查询工具，采用刮刮卡交互方式，让查询成绩的过程更加刺激有趣！
 
-## 🌐 在线访问
-
-<div align="center">
-
-### [🚀 立即体验 → http://soft-exam-scratch.ipp365.cn:3000/](http://soft-exam-scratch.ipp365.cn:3000/)
-
-**备用地址（Vercel，可能无法访问国内网站）**：[https://soft-exam-scratch.vercel.app/](https://soft-exam-scratch.vercel.app/)
-
-</div>
-
 ## 📸 功能展示
 
 <div align="center">
@@ -36,14 +26,6 @@
 - **特效**：Canvas API（刮刮卡效果 + 烟花动画）
 
 ## 🚀 快速开始
-
-### 在线使用（推荐）
-
-直接访问：[http://soft-exam-scratch.ipp365.cn:3000/](http://soft-exam-scratch.ipp365.cn:3000/)
-
-> **备用地址**：[https://soft-exam-scratch.vercel.app/](https://soft-exam-scratch.vercel.app/)（Vercel服务器在海外，可能无法访问国内网站）
-
-### 本地运行
 
 1. **克隆仓库**
    ```bash
