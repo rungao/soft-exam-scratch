@@ -6,7 +6,9 @@
 
 <div align="center">
 
-### [🚀 立即体验 → https://soft-exam-scratch.vercel.app/](https://soft-exam-scratch.vercel.app/)
+### [🚀 立即体验 → http://soft-exam-scratch.ipp365.cn:3000/](http://soft-exam-scratch.ipp365.cn:3000/)
+
+**备用地址（Vercel，可能无法访问国内网站）**：[https://soft-exam-scratch.vercel.app/](https://soft-exam-scratch.vercel.app/)
 
 </div>
 
@@ -37,7 +39,9 @@
 
 ### 在线使用（推荐）
 
-直接访问：[https://soft-exam-scratch.vercel.app/](https://soft-exam-scratch.vercel.app/)
+直接访问：[http://soft-exam-scratch.ipp365.cn:3000/](http://soft-exam-scratch.ipp365.cn:3000/)
+
+> **备用地址**：[https://soft-exam-scratch.vercel.app/](https://soft-exam-scratch.vercel.app/)（Vercel服务器在海外，可能无法访问国内网站）
 
 ### 本地运行
 

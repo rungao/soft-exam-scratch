@@ -243,7 +243,8 @@
         .result-container {
             display: none;
             flex: 1;
-            overflow: visible;
+            overflow-y: auto;
+            overflow-x: hidden;
             flex-direction: column;
             min-height: 0;
         }
@@ -300,7 +301,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: clamp(10px, 2vw, 20px);
             margin-bottom: 20px;
-            flex: 1;
+            flex: 0 0 auto;
             overflow: visible;
             min-height: 0;
         }
@@ -433,10 +434,13 @@
             padding: 15px;
             border-radius: 10px;
             margin-top: 15px;
+            margin-bottom: 15px;
             font-size: 18px;
             font-weight: 600;
             display: none;
             flex-shrink: 0;
+            position: relative;
+            z-index: 10;
         }
 
         .result-message.show {
@@ -621,6 +625,12 @@
             .scores-container {
                 grid-template-columns: 1fr;
                 gap: 20px;
+                flex: 0 0 auto;
+            }
+
+            .result-message {
+                margin-top: 20px;
+                margin-bottom: 20px;
             }
 
             .score-card {
@@ -1457,11 +1467,27 @@
                     scoreData = data.data;
                     displayResult(data.data);
                 } else {
-                    showError(data.msg || '查询失败，请检查Cookie是否正确');
+                    let errorMsg = data.msg || '查询失败，请检查Cookie是否正确';
+                    
+                    // 如果是连接错误，提供更详细的提示
+                    if (data.error && (data.error.includes('无法连接') || data.error.includes('timeout'))) {
+                        errorMsg += '\n\n💡 Vercel服务器可能无法访问国内网站，建议使用本地服务器（运行 node server.js）';
+                    }
+                    
+                    showError(errorMsg);
                 }
             } catch (err) {
                 console.error('查询错误:', err);
-                showError('查询失败：' + err.message + '。请确保已启动本地代理服务器（运行 node server.js）');
+                let errorMsg = '查询失败：' + err.message;
+                
+                // 检查是否是网络连接问题
+                if (err.message.includes('无法连接到') || err.message.includes('timeout') || err.message.includes('ECONNREFUSED')) {
+                    errorMsg += '\n\n💡 提示：Vercel服务器可能无法访问国内网站。\n建议使用本地服务器：\n1. 克隆项目到本地\n2. 运行 node server.js\n3. 访问 http://localhost:3000';
+                } else {
+                    errorMsg += '\n\n💡 如果持续失败，建议使用本地服务器（运行 node server.js）';
+                }
+                
+                showError(errorMsg);
             } finally {
                 queryBtn.disabled = false;
                 loading.classList.remove('show');
